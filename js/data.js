@@ -1,7 +1,7 @@
 window.AppData = (() => {
 
   // ===== データ読み込み元 =====
-  const DATA_SOURCE = "LOCAL";
+  const DATA_SOURCE = "GITHUB_MY";
   // "LOCAL"
   // "GITHUB_OFFICIAL"
   // "GITHUB_MY"
