@@ -1,0 +1,1336 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #222;
+}
+
+body {
+  display: flex;
+  overflow: hidden;
+}
+
+#details-panel {
+  box-sizing: border-box;
+  width: 340px;
+  min-width: 300px;
+  height: 100%;
+  overflow-y: auto;
+  padding: 14px;
+  background: #fff;
+  border-right: 1px solid #d5d5d5;
+  z-index: 1000;
+}
+
+.panel-header h1 {
+  margin: 0;
+  font-size: 19px;
+}
+
+button {
+  padding: 7px 10px;
+  border: 1px solid #bbb;
+  border-radius: 5px;
+  background: #f7f7f7;
+  color: #222;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+button:hover {
+  background: #eaeaea;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.status {
+  padding: 8px 10px;
+  margin-bottom: 14px;
+  background: #f4f6f8;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.status-error {
+  color: #b00020;
+}
+
+.empty-message {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.detail-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-bottom: 12px;
+}
+
+.line-color-chip {
+  flex: 0 0 6px;
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  border: 1px solid #999;
+  border-radius: 1px;
+}
+
+.detail-title {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.detail-meta {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 7px 8px;
+  margin: 0 0 16px;
+  font-size: 13px;
+}
+
+.detail-meta dt {
+  color: #666;
+}
+
+.detail-meta dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* 共通 */
+#nearest-mode-toggle {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  font-weight: bold;
+  font-size: 8px;
+  cursor: pointer;
+  transition:
+    border-radius 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+/* flat */
+#nearest-mode-toggle.nearest-mode-flat {
+  border: 4px solid #9acd32;
+  border-radius: 50%;
+  background: #f5ffe8;
+  color: #456b00;
+}
+
+/* turf */
+#nearest-mode-toggle.nearest-mode-turf {
+  border: 4px solid #1685e5;
+  border-radius: 12px;
+  background: #eaf5ff;
+  color: #07569b;
+}
+
+.section-heading {
+  margin: 16px 0 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.section-card {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.section-card h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
+.coordinate-row {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.coordinate-label {
+  color: #666;
+}
+
+.coordinate-value {
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+.endpoint-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px #555;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.start-icon {
+  background: #16803c;
+}
+
+.end-icon {
+  background: #d32f2f;
+}
+
+#map {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+@media (max-width: 700px) {
+  #details-panel {
+    width: 280px;
+    min-width: 250px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 520px) {
+  body {
+    flex-direction: column;
+  }
+
+  #details-panel {
+    width: 100%;
+    min-width: 0;
+    height: 38%;
+    border-right: 0;
+    border-bottom: 1px solid #d5d5d5;
+  }
+
+  #map {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+/* 駅名ラベル（ズーム時のみ表示） */
+.station-name-label {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: #202020;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-shadow:
+    -1px -1px 0 #fff,
+    1px -1px 0 #fff,
+    -1px 1px 0 #fff,
+    1px 1px 0 #fff;
+  padding: 0;
+}
+
+.station-name-label::before {
+  display: none;
+}
+
+/* 選択中の区間だけを見せるモード */
+body.section-focus #details-panel {
+  border-right-color: #1565c0;
+}
+
+
+/* クリック地点から近い駅の一覧 */
+.click-coordinate {
+  font-size: 12px;
+  color: #555;
+  overflow-wrap: anywhere;
+}
+
+.nearest-note {
+  margin: 8px 0;
+  color: #666;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.nearest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nearest-rank {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #edf3f8;
+  color: #234d6b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.nearest-meta {
+  margin-top: 2px;
+  color: #666;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.nearest-station {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 5px;
+  border-bottom: 1px solid #eee;
+}
+
+.nearest-info {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 上段：駅名・距離・属性 */
+.nearest-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.nearest-name {
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.nearest-distance-attr {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.nearest-distance {
+  color: #666;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 下段：路線情報・座標 */
+.nearest-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+  min-width: 0;
+}
+
+.nearest-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+}
+
+.nearest-line-color {
+  display: inline-block;
+  width: 4px;
+  height: 10px;
+  flex: 0 0 4px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+}
+
+.nearest-coordinate {
+  flex-shrink: 0;
+  color: #666;
+  font-size: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 属性バッジ */
+.nearest-attr {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.nearest-attr.attr-eco {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.nearest-attr.attr-heat {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.nearest-attr.attr-cool {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.nearest-attr.attr-unknown {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+/* =========================
+   最近傍駅カード
+========================= */
+
+.nearest-primary-card {
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 7px;
+  background: #f8fafc;
+}
+
+.nearest-primary-header {
+  display: flex;
+  align-items: center;
+}
+
+.nearest-primary-kana {
+  font-size: 8px;
+  color: #666;
+}
+
+/* 駅名と右側の距離・座標 */
+.nearest-primary-main {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.nearest-primary-info {
+  min-width: 0;
+}
+
+.nearest-primary-name {
+  font-size: 17px;
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+.nearest-primary-prefecture {
+  font-size: 8px;
+  color: #666;
+  margin-top: 1px;
+}
+
+/* 右下の距離・属性・座標 */
+.nearest-primary-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.nearest-primary-status .nearest-distance,
+.nearest-primary-status .nearest-coordinate {
+  font-size: 10px;
+}
+
+/* 所属路線 */
+.nearest-primary-lines {
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px solid #ddd;
+}
+
+/* 最近傍駅カードの所属路線 */
+.nearest-primary-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  margin: 3px 0;
+  padding: 4px 5px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.nearest-primary-line:hover {
+  background-color: #e2e8f0;
+}
+
+.nearest-primary-line:active {
+  background-color: #cbd5e1;
+}
+
+.nearest-primary-line:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+}
+
+.nearest-primary-line-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 500;
+}
+
+.nearest-primary-line-count {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: #666;
+  font-size: 10px;
+}
+
+/* 右下に配置する生成ボタン */
+.nearest-primary-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 7px;
+}
+
+.nearest-primary-generate {
+  font-size: 10px;
+  padding: 4px 7px;
+  white-space: nowrap;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  background: #e5e7eb;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.panel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-header-actions button {
+  white-space: nowrap;
+}
+
+.add-nearest-button {
+  display: block;
+  width: 100%;
+  margin: 12px 0;
+  padding: 10px 12px;
+  border: 1px solid #ff1493;
+  border-radius: 6px;
+  background: #ff1493;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.add-nearest-button:hover {
+  background: rgba(204, 15, 116, 0.663);
+}
+
+.through-station-selected {
+  outline: 2px solid #e91e63;
+  outline-offset: -2px;
+  background-color: rgba(233, 30, 99, 0.08);
+}
+
+.polyline-route-controls {
+  margin: 12px 0 20px;
+}
+
+.polyline-route-control-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.polyline-route-control-row button {
+  padding: 8px 12px;
+}
+
+#polyline-route-display {
+  margin-top: 12px;
+  overflow-x: auto;
+}
+
+.through-summary {
+  margin: 12px 0 20px;
+  padding: 10px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 12px;
+  background: var(--panel-background, #fff);
+}
+
+.through-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.through-summary-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.through-status-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #e5f5e9;
+  color: #238443;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.through-summary-main {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.through-result-card {
+  padding: 10px 10px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.through-nearest-card {
+  background: #eaf2ff;
+  color: #245da8;
+}
+
+.through-nearby-card {
+  background: #fcecf3;
+  color: #b83269;
+}
+
+.through-result-label {
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.through-result-value {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.through-result-value small {
+  margin-left: 3px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.through-debug-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 14px;
+  margin-top: 12px;
+  padding: 9px 2px 0;
+  border-top: 1px solid var(--border-color, #ddd);
+  color: var(--muted-color, #777);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.through-debug-info span {
+  white-space: nowrap;
+}
+
+.through-debug-info b {
+  margin-right: 4px;
+  font-weight: 600;
+}
+
+/* =========================
+   近傍N駅設定
+========================= */
+
+.nearest-count-controls {
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 9px;
+  background: #f8f9fb;
+}
+
+.nearest-count-main>label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.nearest-count-adjust {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#nearest-count-slider {
+  flex: 1;
+  min-width: 0;
+}
+
+#nearest-count-minus,
+#nearest-count-plus {
+  width: 32px;
+  min-width: 32px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+}
+
+#nearest-count-value {
+  min-width: 26px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.nearest-count-bonus-list {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.nearest-count-bonus-item {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.nearest-count-bonus {
+  width: 100%;
+  padding: 7px 3px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  opacity: 0.65;
+}
+
+.nearest-count-bonus.selected {
+  opacity: 1;
+  border-color: #222;
+  box-shadow: 0 0 0 2px white inset;
+}
+
+.nearest-count-bonus:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+.bonus-4 {
+  background: #ff69b4;
+}
+
+.bonus-2a {
+  background: #9370db;
+}
+
+.bonus-2b {
+  background: #32cd32;
+}
+
+.nearest-count-bonus-result {
+  margin-top: 5px;
+  font-size: 0.8em;
+  color: #555;
+}
+
+.nearest-count-total {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 0.9em;
+}
+
+#nearest-count-force-30 {
+  padding: 7px 10px;
+  border: 1px solid #777;
+  border-radius: 6px;
+  background: #eee;
+  cursor: pointer;
+}
+
+#nearest-count-force-30.active {
+  color: white;
+  background: #333;
+}
+
+.nearest-count-controls button:disabled {
+  cursor: not-allowed;
+}
+
+
+
+/* =========================
+   ファイル読み込み
+========================= */
+
+.gpx-import {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 7px;
+  padding: 1px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f8f9fb;
+}
+
+.gpx-import button {
+  flex: 1;
+  min-width: 100px;
+  padding: 8px 6px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.gpx-import button:hover {
+  background: #eaf2fb;
+}
+
+
+/* スマートフォン */
+@media (max-width: 600px) {
+  #details-panel {
+    width: calc(100vw - 24px);
+  }
+}
+
+/* Leafletメニュー */
+.leaflet-control.map-menu-control {
+  position: relative;
+  margin: 10px !important;
+}
+
+.map-menu-toggle {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.map-menu-toggle span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #333;
+}
+
+.map-settings-menu {
+  display: none;
+  position: absolute;
+  top: 50px;
+  left: 0;
+  width: min(380px, calc(100vw - 80px));
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .25);
+  z-index: 1000;
+}
+
+.map-settings-menu.menu-open {
+  display: block;
+}
+
+/* マーカーと駅名を縦に配置 */
+.station-label-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 120px;
+  white-space: nowrap;
+}
+
+/* 駅座標に表示する小さな丸 */
+.station-label-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid #ffffff;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
+  flex-shrink: 0;
+}
+
+/* 駅名 */
+.station-label-text {
+  display: block;
+  color: #222222;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 13px;
+  text-align: center;
+  text-shadow:
+    -1px -1px 1px #ffffff,
+    1px -1px 1px #ffffff,
+    -1px 1px 1px #ffffff,
+    1px 1px 1px #ffffff;
+}
+
+/* 近傍駅の順位マーカー */
+.nearest-rank-marker-container {
+  background: transparent;
+  border: none;
+}
+
+.nearest-rank-marker {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.aircraft-paste-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.55);
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+}
+
+.aircraft-paste-modal.show {
+  display: flex;
+}
+
+.aircraft-paste-dialog {
+  width: min(900px, 100%);
+  height: min(650px, 90vh);
+  background: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+}
+
+.aircraft-paste-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#aircraft-paste-close {
+  border: none;
+  background: transparent;
+  font-size: 25px;
+  cursor: pointer;
+}
+
+#aircraft-paste-text {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  resize: none;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre;
+  overflow: auto;
+}
+
+.aircraft-paste-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+}
+
+#aircraft-paste-import {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 5px;
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#aircraft-paste-import:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+
+.through-exclude-settings {
+  margin: 12px 0 18px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.through-exclude-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.through-exclude-settings label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 6px 0;
+  cursor: pointer;
+}
+
+.through-exclude-settings input[type="checkbox"] {
+  margin: 0;
+}
+
+.reset-map-control {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.reset-map-button {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px !important;
+  height: 34px !important;
+
+  background: #fff !important;
+  color: #333 !important;
+
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+  border-radius: 4px !important;
+
+  text-decoration: none !important;
+}
+
+.reset-map-button:hover {
+  background: #f4f4f4 !important;
+  color: #2563eb !important;
+}
+
+.reset-map-button svg {
+  display: block;
+}
+
+.nearest-mode-control {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.nearest-mode-button {
+  display: block;
+  cursor: pointer;
+}
+
+.nearest-count-open-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+  padding: 0;
+
+  border: 4px solid #1685e5;
+  border-radius: 50%;
+
+  background: #eaf5ff;
+  color: #07569b;
+
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+
+  flex-direction: column;
+  gap: 0;
+  line-height: 1;
+}
+
+.nearest-count-control {
+  position: relative;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 設定パネル */
+.nearest-count-popup {
+  display: none;
+
+  position: absolute;
+  top: 0;
+  right: 48px;
+
+  width: 300px;
+  max-width: calc(100vw - 100px);
+
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+
+  z-index: 1000;
+}
+
+/* 開いている状態 */
+.nearest-count-popup.popup-open {
+  display: block;
+}
+
+/* 元の設定ボックスの余白を調整 */
+.nearest-count-popup .nearest-count-controls {
+  margin: 0;
+  border: none;
+}
+
+/* ボーナス1つ：ブースター+4 */
+.nearest-count-open-button.count-bonus-4 {
+  border-color: #ff69b4;
+  background: #fff0f7;
+  color: #b52d73;
+}
+
+/* ボーナス1つ：なつめ+2 */
+.nearest-count-open-button.count-bonus-2a {
+  border-color: #9370db;
+  background: #f2edff;
+  color: #6040a0;
+}
+
+/* ボーナス1つ：フェアマスター+2 */
+.nearest-count-open-button.count-bonus-2b {
+  border-color: #32cd32;
+  background: #efffee;
+  color: #187d18;
+}
+
+/* ボーナス2つ以上 */
+.nearest-count-open-button.count-multiple {
+  border-color: #e53935;
+  background: #ffebeb;
+  color: #b71c1c;
+}
+
+/* 30駅固定 */
+.nearest-count-open-button.count-force-30 {
+  border-color: #222;
+  background: #333;
+  color: #fff;
+}
+
+.nearest-count-label {
+  font-size: 8px;
+  font-weight: normal;
+  line-height: 1.2;
+}
+
+.nearest-count-number {
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+/* ヘッダー */
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+/* ハンバーガーボタン */
+#gpx-import-menu-toggle {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 7px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+#gpx-import-menu-toggle span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #333;
+  border-radius: 2px;
+}
+
+/* パネル内の展開メニュー */
+#gpx-import-menu {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#gpx-import-menu.menu-open {
+  display: block;
+}
+
+/* 各読み込み項目 */
+.import-section {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.import-section h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.import-section p {
+  margin: 6px 0 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #444;
+}
+
+.import-section > button {
+  width: 100%;
+  padding: 8px;
+}
+
+/* サンプル一覧 */
+.sample-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed #ccc;
+}
+
+.sample-title {
+  width: 100%;
+  font-size: 11px;
+  font-weight: bold;
+  color: #666;
+}
+
+.sample-load-button {
+  padding: 6px 10px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  background: #f5f5f5;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sample-load-button:hover {
+  background: #e8f2ff;
+  border-color: #1685e5;
+}
+
+.sample-load-button:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+
+/* GPX読み込みメニューは初期状態で非表示 */
+#details-panel #gpx-import-menu {
+  display: none !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ハンバーガーボタンを押したときだけ表示 */
+#details-panel #gpx-import-menu.menu-open {
+  display: block !important;
+}
+
+@media (max-width: 640px) {
+    .leaflet-control-attribution {
+        font-size: 8px;
+        line-height: 1.2;
+        padding: 0 3px;
+    }
+}

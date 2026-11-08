@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>路線近傍駅検索</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+  <aside id="details-panel" aria-label="詳細情報">
+    <div class="panel-header">
+      <h1>路線近傍駅検索</h1>
+
+      <button id="gpx-import-menu-toggle" type="button" aria-expanded="false" aria-label="読み込みメニューを開く">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    <!-- 近傍N駅設定 -->
+    <div id="nearest-count-controls" class="nearest-count-controls">
+      <div class="nearest-count-main">
+        <label for="nearest-count-slider">近傍N駅の基本数</label>
+
+        <div class="nearest-count-adjust">
+          <input id="nearest-count-slider" type="range" min="1" max="12" step="1" value="10">
+
+          <button id="nearest-count-minus" type="button">−</button>
+          <span id="nearest-count-value">12</span>
+          <button id="nearest-count-plus" type="button">＋</button>
+        </div>
+      </div>
+
+      <div class="nearest-count-bonus-list">
+        <div class="nearest-count-bonus-item">
+          <button class="nearest-count-bonus bonus-4" data-bonus="4" data-index="0" type="button"
+            aria-pressed="false">ブースター +4</button>
+        </div>
+
+        <div class="nearest-count-bonus-item">
+          <button class="nearest-count-bonus bonus-2a" data-bonus="2" data-index="1" type="button"
+            aria-pressed="false">なつめ +2</button>
+        </div>
+
+        <div class="nearest-count-bonus-item">
+          <button class="nearest-count-bonus bonus-2b" data-bonus="2" data-index="2" type="button"
+            aria-pressed="false">ひかり +2</button>
+        </div>
+      </div>
+
+      <div class="nearest-count-total">
+        <button id="nearest-count-force-30" type="button">
+          奪取ブースター 30駅固定
+        </button>
+        <span>表示：<strong id="nearest-count-total-value">12駅</strong></span>
+      </div>
+    </div>
+
+    <div id="gpx-import-menu" class="gpx-import">
+
+      <!-- Google Maps / GPX -->
+      <section class="import-section">
+        <h3>mapstogpx.gpx 読み込み</h3>
+
+        <p>
+          Google Mapsの経路検索結果を
+          <a href="https://mapstogpx.com/" target="_blank" rel="noopener">Maps to GPX</a>
+          などでGPX形式に変換したデータを読み込めます。
+        </p>
+
+        <button id="gpx-load-button" type="button">
+          GPXファイルを選択
+        </button>
+        <input id="gpx-file-input" type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" hidden>
+
+        <div class="sample-list">
+          <div class="sample-title">サンプルデータ</div>
+          <button class="sample-load-button" data-input="gpx-file-input" data-file="国道1号.gpx">
+            国道1号
+          </button>
+          <button class="sample-load-button" data-input="gpx-file-input" data-file="石見銀山号.gpx">
+            石見銀山号
+          </button>
+        </div>
+      </section>
+
+      <!-- FR24 -->
+      <section class="import-section">
+        <h3>flight-playback.json 読み込み</h3>
+
+        <p>
+          Flightradar24（FR24）から取得した
+          <code>flight-playback.json</code> を読み込み、
+          飛行経路を読み込めます。
+        </p>
+
+        <button id="aircraft-load-button" type="button">
+          flight-playback.json を選択
+        </button>
+        <input id="aircraft-file-input" type="file" accept=".json,application/json" hidden>
+      </section>
+
+      <!-- FlightAware -->
+      <section class="import-section">
+        <h3>FlightAware TrackLog 表データ 貼り付け</h3>
+
+        <p>
+          <a href="https://www.flightaware.com/live/findflight/" target="_blank"
+            rel="noopener">FlightAware</a>の飛行情報にある「View track log」で表示される
+          表データをコピーして貼り付けることで、飛行経路を読み込めます。
+        </p>
+
+        <button id="aircraft-paste-button" type="button">
+          TrackLogデータを貼り付け
+        </button>
+      </section>
+
+      <!-- Overpass -->
+      <section class="import-section">
+        <h3>overpass geojson 読み込み</h3>
+
+        <p>
+          OpenStreetMapのデータをOverpass APIで取得し、
+          GeoJSON形式で保存したファイルを読み込めます。
+          鉄道路線や延伸予定区間などの地理データを地図上に表示できます。
+        </p>
+
+        <p>
+          <a href="https://overpass-turbo.eu/" target="_blank" rel="noopener">
+            Overpass Turboを開く
+          </a>
+        </p>
+
+        <button id="overpass-load-button" type="button">
+          GeoJSONファイルを選択
+        </button>
+        <input id="overpass-file-input" type="file" accept=".geojson,.json,application/geo+json,application/json"
+          multiple hidden>
+
+        <div class="sample-list">
+          <div class="sample-title">サンプルデータ</div>
+          <button class="sample-load-button" data-input="overpass-file-input" data-file="中央新幹線.geojson">
+            中央新幹線
+          </button>
+          <button class="sample-load-button" data-input="overpass-file-input" data-file="北海道新幹線_延伸区間.geojson">
+            北海道新幹線 延伸区間
+          </button>
+          <button class="sample-load-button" data-input="overpass-file-input" data-file="北陸新幹線_延伸計画.geojson">
+            北陸新幹線 延伸計画
+          </button>
+          <button class="sample-load-button" data-input="overpass-file-input" data-file="さんふらわあ.geojson">
+            商船三井さんふらわあ
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+    <section id="details-content">
+      <div id="status" class="status">
+        <div>初期化中...</div>
+        <div id="voronoi-status">ボロノイ図を読み込み中...</div>
+        <div id="lines-status">路線を読み込み中...</div>
+        <div id="stations-status">駅データを読み込み中...</div>
+      </div>
+      <p class="empty-message">地図をクリックすると、クリック地点から近い駅を表示します。路線をクリックすると路線の詳細を表示します。</p>
+    </section>
+  </aside>
+
+  <main id="map" aria-label="地図"></main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/@turf/turf@7.2.0/turf.min.js"></script>
+  <script src="./js/settings.js"></script>
+  <script src="./js/map.js"></script>
+  <script src="./js/details.js"></script>
+  <script src="./js/kdtree.js"></script>
+  <script src="./js/data.js"></script>
+  <script src="./js/stations.js"></script>
+  <script src="./js/through.js"></script>
+  <script src="./js/voronoi.js"></script>
+  <script src="./js/railway.js"></script>
+  <script src="./js/polyline-sorter.js"></script>
+  <script src="./js/main.js"></script>
+</body>
+
+</html>
